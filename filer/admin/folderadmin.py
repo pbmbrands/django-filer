@@ -277,7 +277,7 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
         else:
             folder_qs = folder.children.select_related().all()
             if isinstance(folder, UnfiledImages):
-                file_qs = File.objects.select_related().filter(folder_isnull=True)
+                file_qs = File.objects.select_related().filter(folder__isnull=True)
             else:
                 file_qs = folder.files.select_related().all()
             show_result_count = False
