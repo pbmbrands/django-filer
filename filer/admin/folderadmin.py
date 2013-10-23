@@ -370,7 +370,7 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
             action_form = None
 
         selection_note_all = ungettext('%(total_count)s selected',
-            'All %(total_count)s selected', paginator.count)
+            'All %(total_count)s selected', FILER_PAGINATE_BY)
 
         # If page request (9999) is out of range, deliver last page of results.
         """try:
