@@ -265,21 +265,21 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
         if len(search_terms) > 0:
             if folder and limit_search_to_folder and not folder.is_root:
                 folder_qs = folder.get_descendants()
-                file_qs = File.objects.select_related().filter(
+                file_qs = File.objects.filter(
                                         folder__in=folder.get_descendants())
             else:
-                folder_qs = Folder.objects.select_related().all()
-                file_qs = File.objects.select_related().all()
+                folder_qs = Folder.objects.all()
+                file_qs = File.objects.all()
             folder_qs = self.filter_folder(folder_qs, search_terms)
             file_qs = self.filter_file(file_qs, search_terms)
 
             show_result_count = True
         else:
-            folder_qs = folder.children.select_related().all()
+            folder_qs = folder.children.all()
             if isinstance(folder, UnfiledImages):
-                file_qs = File.objects.select_related().filter(folder__isnull=True)
+                file_qs = File.objects.filter(folder__isnull=True)
             else:
-                file_qs = folder.files.select_related().all()
+                file_qs = folder.files.all()
             show_result_count = False
 
         folder_qs = folder_qs.order_by('name')
