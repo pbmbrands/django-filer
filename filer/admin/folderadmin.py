@@ -376,8 +376,8 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
         class SimplePager(object):
             has_previous = False
             has_next = False
-            previous_page = None
-            next_page = None
+            previous_page_number = None
+            next_page_number = None
             num_pages = 0
             number = 0
             object_list = None
@@ -388,17 +388,17 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
         paginated_items.num_pages = pages
         
         if request_page <= 1:
-            paginated_items.previous_page = None
+            paginated_items.previous_page_number = None
             paginated_items.has_previous = False
         else:
-            paginated_items.previous_page = request_page - 1
+            paginated_items.previous_page_number = request_page - 1
             paginated_items.has_previous = True
             
         if request_page >= pages:
-            paginated_items.next_page = None
+            paginated_items.next_page_number = None
             paginated_items.has_next = False
         else:
-            paginated_items.next_page = request_page + 1
+            paginated_items.next_page_number = request_page + 1
             paginated_items.has_next = True
         
         return render_to_response(
