@@ -269,7 +269,7 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
                                         folder__in=folder.get_descendants())
             else:
                 folder_qs = Folder.objects.all()
-                file_qs = File.objects.all()
+                file_qs = File.objects.select_related().all()
             folder_qs = self.filter_folder(folder_qs, search_terms)
             file_qs = self.filter_file(file_qs, search_terms)
 
