@@ -276,14 +276,14 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
             show_result_count = True
         else:
             folder_qs = folder.children.all()
-            #if isinstance(folder, UnfiledImages):
-            #    file_qs = File.objects.filter(folder__isnull=True)
-            #else:
-            file_qs = folder.files.all()
+            if isinstance(folder, UnfiledImages):
+                file_qs = File.objects.filter(folder__isnull=True)
+            else:
+                file_qs = folder.files.all()
             show_result_count = False
 
         folder_qs = folder_qs.order_by('name')
-        file_qs = file_qs.order_by('-uploaded_at')
+        file_qs = file_qs.order_by('name')
 
         folder_children = []
         folder_files = []
