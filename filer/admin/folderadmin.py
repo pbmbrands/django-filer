@@ -416,7 +416,7 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
                     in_clipboards__clipboarditem__clipboard__user=request.user
                     ).distinct(),
                 #'paginator': paginator,
-                'paginator': paginator,
+                'paginator': paginated_items,
                 'paginated_items': paginated_items,
                 'permissions': permissions,
                 'permstest': userperms_for_request(folder, request),
