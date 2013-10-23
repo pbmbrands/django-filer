@@ -311,7 +311,7 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
             page = 0
             request_page = 1
         page_start = page * FILER_PAGINATE_BY
-        page_end = start + FILER_PAGINATE_BY
+        page_end = page_start + FILER_PAGINATE_BY
         
         folder_children += folder_qs
         folder_files += file_qs[page_start:page_end]
