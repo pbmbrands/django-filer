@@ -261,7 +261,7 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
             q = ''
         limit_search_to_folder = request.GET.get('limit_search_to_folder',
                                                  False) in (True, 'on')
-
+                                                 
         if len(search_terms) > 0:
             if folder and limit_search_to_folder and not folder.is_root:
                 folder_qs = folder.get_descendants()
@@ -291,9 +291,30 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
         if perms != 'All':
             folder_qs = folder_qs.filter(Q(id__in=perms) | Q(owner=request.user))
             file_qs = file_qs.filter(Q(folder__id__in=perms) | Q(owner=request.user))
-
+            
+        request_page = request.GET.get('page', 1)
+        try:
+            page = int(request_page) - 1
+            if page < 0:
+                page = 0
+            request_page = int(request_page)
+            
+            total_items = file_qs.count()
+            pages = total_items / FILER_PAGINATE_BY
+            left_over = total_items % FILER_PAGINATE_BY
+            if left_over > 0:
+                pages += 1
+                
+            if page > pages:
+                page = pages
+        except:
+            page = 0
+            request_page = 1
+        page_start = page * FILER_PAGINATE_BY
+        page_end = start + FILER_PAGINATE_BY
+        
         folder_children += folder_qs
-        folder_files += file_qs
+        folder_files += file_qs[page_start:page_end]
 
         try:
             permissions = {
@@ -306,7 +327,7 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
             permissions = {}
         folder_files.sort()
         items = folder_children + folder_files
-        paginator = Paginator(items, FILER_PAGINATE_BY)
+        #paginator = Paginator(items, FILER_PAGINATE_BY)
 
         # Are we moving to clipboard?
         if request.method == 'POST' and '_save' not in request.POST:
@@ -352,12 +373,41 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
             'All %(total_count)s selected', paginator.count)
 
         # If page request (9999) is out of range, deliver last page of results.
-        try:
+        """try:
             paginated_items = paginator.page(request.GET.get('page', 1))
         except PageNotAnInteger:
             paginated_items = paginator.page(1)
         except EmptyPage:
-            paginated_items = paginator.page(paginator.num_pages)
+            paginated_items = paginator.page(paginator.num_pages)"""
+            
+        class SimplePager(object):
+            has_previous = False
+            has_next = False
+            previous_page = None
+            next_page = None
+            num_pages = 0
+            number = 0
+            object_list = None
+            count = FILER_PAGINATE_BY
+        paginated_items = SimplePager()
+        paginated_items.object_list = items
+        paginated_items.number = request_page
+        paginated_items.num_pages = pages
+        
+        if request_page <= 1:
+            paginated_items.previous_page = None
+            paginated_items.has_previous = False
+        else:
+            paginated_items.previous_page = request_page - 1
+            paginated_items.has_previous = True
+            
+        if request_page >= pages:
+            paginated_items.next_page = None
+            paginated_items.has_next = False
+        else:
+            paginated_items.next_page = request_page + 1
+            paginated_items.has_next = True
+        
         return render_to_response(
             'admin/filer/folder/directory_listing.html',
             {
@@ -365,6 +415,7 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
                 'clipboard_files': File.objects.filter(
                     in_clipboards__clipboarditem__clipboard__user=request.user
                     ).distinct(),
+                #'paginator': paginator,
                 'paginator': paginator,
                 'paginated_items': paginated_items,
                 'permissions': permissions,
@@ -383,8 +434,8 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
                 'actions_on_top': self.actions_on_top,
                 'actions_on_bottom': self.actions_on_bottom,
                 'actions_selection_counter': self.actions_selection_counter,
-                'selection_note': _('0 of %(cnt)s selected') % {'cnt': len(paginated_items.object_list)},
-                'selection_note_all': selection_note_all % {'total_count': paginator.count},
+                #'selection_note': _('0 of %(cnt)s selected') % {'cnt': len(paginated_items.object_list)},
+                #'selection_note_all': selection_note_all % {'total_count': paginator.count},
                 'media': self.media,
                 'enable_permissions': settings.FILER_ENABLE_PERMISSIONS
         }, context_instance=RequestContext(request))
