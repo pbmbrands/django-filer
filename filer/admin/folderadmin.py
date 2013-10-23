@@ -301,18 +301,17 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
             if page < 0:
                 page = 0
             request_page = int(request_page)
-            
-            total_items = file_qs.count()
-            pages = total_items / FILER_PAGINATE_BY
-            left_over = total_items % FILER_PAGINATE_BY
-            if left_over > 0:
-                pages += 1
-                
-            if page > pages:
-                page = pages
         except:
             page = 0
             request_page = 1
+        total_items = file_qs.count()
+        pages = total_items / FILER_PAGINATE_BY
+        left_over = total_items % FILER_PAGINATE_BY
+        if left_over > 0:
+            pages += 1
+            
+        if page > pages:
+            page = pages
         page_start = page * FILER_PAGINATE_BY
         page_end = page_start + FILER_PAGINATE_BY
         
