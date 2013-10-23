@@ -283,8 +283,12 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
             show_result_count = False
 
         folder_qs = folder_qs.order_by('name')
-        if isinstance(FILER_ORDER_BY, (str,unicode)):
+        try:
+            tmp = FILER_ORDER_BY
+            tmp.strip()
             FILER_ORDER_BY = [FILER_ORDER_BY]
+        except:
+            pass
         file_qs = file_qs.order_by(*FILER_ORDER_BY)
 
         folder_children = []
