@@ -265,7 +265,7 @@ class FolderAdmin(PrimitivePermissionAwareModelAdmin):
         if len(search_terms) > 0:
             if folder and limit_search_to_folder and not folder.is_root:
                 folder_qs = folder.get_descendants()
-                file_qs = File.objects.filter(
+                file_qs = File.objects.select_related().filter(
                                         folder__in=folder.get_descendants())
             else:
                 folder_qs = Folder.objects.all()
